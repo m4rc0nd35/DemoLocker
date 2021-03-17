@@ -2,6 +2,9 @@
 #include <QQmlApplicationEngine>
 #include <serialmcu.h>
 #include <QDebug>
+#include <QtQml>
+#include <QQmlContext>
+#include <singleton.h>
 
 int main(int argc, char *argv[])
 {
@@ -11,6 +14,8 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    qmlRegisterSingletonType<Singleton>("QtSingleton", 1, 12, "Sinstance", Singleton::createSingletonInstance);
+
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
@@ -19,17 +24,5 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-//    int checkSum = 0;
-//    char bytes[] = { 0x02, 0x00, 0x00, 0x51, 0x03};
-
-//    qDebug() << bytes<< endl;
-//    for(unsigned char b : bytes){
-//        checkSum += b;
-//        qDebug() << "checkSum" << checkSum<< endl;
-//    }
-
-//    qDebug() << char(checkSum & 0xFF) << endl;
-
-    SerialMCU *control = new SerialMCU();
     return app.exec();
 }

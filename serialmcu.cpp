@@ -1,6 +1,6 @@
 #include "serialmcu.h"
 
-SerialMCU::SerialMCU(QObject *parent) : QObject(parent)
+bool SerialMCU::connectSerial()
 {
     m_serial = new QSerialPort();
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
@@ -68,27 +68,40 @@ void SerialMCU::readyRead()
     QByteArray byte = m_serial->readAll();
     if(byte.count() == 9)
     {
-        const char _size[] = {byte[0], byte[1], byte[2], byte[3], byte[4], byte[5], byte[6], byte[7], byte[8]};
-        qDebug() << sum(byte) << byte.toHex() <<  endl;
+        switch (int(byte[1])) {
+            case 0:
+                qDebug() << "" << endl;
+                break;
 
+        }
+        QList<int> port;
+        port.append(convert(int(byte[3])));
+        port.append(convert(int(byte[4])));
+        _status_port.append(port);
+
+        QList<int> sensor;
+        sensor.append(convert(int(byte[5])));
+        sensor.append(convert(int(byte[6])));
+        _status_sensor.append(sensor);
     }
-//    for(int i=0; byte.count() > i; i++)
-//        qDebug() << "DEC RETURN" << byte[i]<< endl;
-//        convert(int(byte[i]));
+
+    Q_EMIT modelStatusPortChanged();
+    qDebug() << "STATUS PORT:" << _status_port << byte << endl;
+    qDebug() << "STATUS SENSOR:" << _status_sensor << endl;
 }
-void SerialMCU::convert(unsigned int val)
+QList<int> SerialMCU::convert(unsigned int val)
 {
-    QString bits;
+    QList<int> bits;
     unsigned int mask = 1 << 7;
 
     for(int i = 0; i <  8; i++)
     {
         if( (val & mask) == 0 )
-            bits.append('0');
+            bits.push_front(0);
         else
-            bits.append('1');
+            bits.push_front(1);
 
         mask  >>= 1;
     }
-    qDebug() << bits << endl ;
+    return bits;
 }

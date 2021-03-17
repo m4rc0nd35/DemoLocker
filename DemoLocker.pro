@@ -9,7 +9,8 @@ CONFIG += c++11
 SOURCES += \
 #        control_locker.c \
         main.cpp \
-        serialmcu.cpp
+        serialmcu.cpp \
+        singleton.cpp
 
 RESOURCES += qml.qrc
 
@@ -26,4 +27,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
 #    control_locker.h \
-    serialmcu.h
+    serialmcu.h \
+    singleton.h

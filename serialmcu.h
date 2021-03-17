@@ -12,6 +12,8 @@
 class SerialMCU: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QList<QList<int>> modelStatusPort MEMBER _status_port  NOTIFY modelStatusPortChanged)
+
 public:
     enum COMMAND{
         STATUS16 = 0x30,
@@ -22,32 +24,28 @@ public:
     };
 
     enum MODULE{
-        SLAVE1 = 0x00,
-        SLAVE2,
-        SLAVE3,
-        SLAVE4,
-        SLAVE5,
-        SLAVE6,
-        SLAVE7,
-        SLAVE8,
-        SLAVE9,
-        SLAVE10,
-        SLAVEALL
+        SLAVE1 = 0x00, SLAVE2, SLAVE3, SLAVE4, SLAVE5,
+        SLAVE6, SLAVE7, SLAVE8, SLAVE9, SLAVE10, SLAVEALL
     };
 
-    explicit SerialMCU(QObject *parent = nullptr);
+    Q_INVOKABLE bool connectSerial();
     void sendCommand(COMMAND, int=1, MODULE module=SLAVE1);
     void send();
     char sum(const char[]);
-    void convert(unsigned int palindrome);
+    QList<int> convert(unsigned int);
 
 public slots:
     void readyRead();
 
+signals:
+    void modelStatusPortChanged();
+
 private:
     QSerialPort *m_serial;
     QByteArray _buffer;
-    int m_timeoutRead = 10000;
+    QList<QList<int>> _status_port;
+    QList<QList<int>> _status_sensor;
+    QList<int> status_port = {1, 2};
 };
 
 #endif // SERIALMCU_H
